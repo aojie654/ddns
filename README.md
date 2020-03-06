@@ -16,7 +16,7 @@
 
 ### 需要的操作
 
-1. 修改脚本中的Hostname, Username, Passwd, Curl Proxy(可选)
+1. 修改脚本中的Hostname, Username, Passwd, Curl Proxy(可选, 不需要则设置为空字符串 "" )
 2. 将脚本以bash ${Path_Of_DDNS_google.sh} 的格式添加到Crontab(因此无需chmod +x), 建议时间间隔大于5 min
 
 ### 查看日志
