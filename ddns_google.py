@@ -114,4 +114,4 @@ if __name__ == "__main__":
 
     for update_meta in update_lists:
         dns_update_step(update_meta, result_ip_cur)
-
+    pass

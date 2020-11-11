@@ -17,11 +17,11 @@ curl_proxy="Curl Proxy"
 ip_current=$(curl whatismyip.akamai.com)
 ip_dns=$(dig ${hostname_g} @8.8.8.8 +short)
 
-# Define the log name to 
+# Define the log name to
 filename_log="/tmp/ddns_${hostname_g}.log"
 
 # Compare the current IP and IP of domain in DNS
-if [ ${ip_current} = ${ip_dns} ];then
+if [ ${ip_current} = ${ip_dns} ]; then
     # Using this to debug in case
     echo "No need to update for ${ip_current} equels ${ip_dns}"
 
@@ -33,11 +33,11 @@ else
 
     # Define the reulst what returned
     update_result=$(curl -d "hostname=${hostname_g}&myip=${ip_current}" "https://${username_g}:${password_g}@domains.google.com/nic/update" -x ${curl_proxy})
-    
+
     # Using this to debug in case
     echo ${update_result}
 fi
 
 # Add the update result to log
 timestamp=$(date "+%Y-%m-%d %H:%M:%S.%3N %z")
-echo "${timestamp} Hostname: ${hostname_g}, Current IP: ${ip_current}, IP in DNS: ${ip_dns}, Result: ${update_result}" >> ${filename_log}
+echo "${timestamp} Hostname: ${hostname_g}, Current IP: ${ip_current}, IP in DNS: ${ip_dns}, Result: ${update_result}" >>${filename_log}
