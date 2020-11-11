@@ -4,11 +4,11 @@
 timestamp=$(date "+%Y-%m-%d %H:%M:%S.%3N %z")
 
 # Define the hostname
-hostname_g="www.example"
+hostname_g="Your Google DDNS Hostname"
 
 # Define the username and passwd
-username_g="Your Username"
-password_g="Your Passwd"
+username_g="Your Google DDNS Username"
+password_g="Your Google DDNS Passwd"
 
 # Define the proxy of curl if you need or just set it to ""
 curl_proxy="Curl Proxy"

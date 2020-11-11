@@ -13,30 +13,15 @@ if not os.path.exists(log_folder):
     os.mkdir(log_folder)
 
 proxies_set = {
-    "http": "http://127.0.0.1:10809",
-    "https": "http://127.0.0.1:10809",
+    "http": "Your HTTP Proxy",
+    "https": "Your HTTPS Proxy",
 }
 
 update_lists = [
     {
-        "hostname": "cr.tong2640.com",
-        "username": "2qR8WgRdh42cfw71",
-        "password": "fQdfkebtcss3i0aR"
-    },
-    {
-        "hostname": "jm.tong2640.com",
-        "username": "BtxcfQbwA9ruVMoh",
-        "password": "kEpDjPTo0hmkUejA"
-    },
-    {
-        "hostname": "rd.tong2640.com",
-        "username": "mV8Km6PJzZTWIVMx",
-        "password": "xrEF6C9HmPqWbUtp"
-    },
-    {
-        "hostname": "gitlab.tong2640.com",
-        "username": "Rk7g3NyIKkMDpcg2",
-        "password": "q7fMFwt2jS0oXviw"
+        "hostname": "Your Google DDNS Hostname",
+        "username": "Your Google DDNS Username",
+        "password": "Your Google DDNS Password"
     },
 ]
 
@@ -50,6 +35,8 @@ def get_current_time():
 
 def get_public_ip():
     url_ip = "http://whatismyip.akamai.com"
+    
+    # Use 1.1.1.1 as result IP for debug.
     # result_ip_cur = "1.1.1.1"
     result_ip_cur = requests.get(url_ip).text.replace("\n", "")
 
@@ -93,9 +80,6 @@ def dns_update_step(update_meta, result_ip_cur):
     hostname = update_meta["hostname"]
     ip_cur = result_ip_cur
 
-    if (hostname == "gitlab.tong2640.com"):
-        ip_cur = "127.0.0.1"
-
     data_post = {
         "hostname": hostname,
         "myip": ip_cur
@@ -130,3 +114,4 @@ if __name__ == "__main__":
 
     for update_meta in update_lists:
         dns_update_step(update_meta, result_ip_cur)
+
