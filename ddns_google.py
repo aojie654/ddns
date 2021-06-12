@@ -6,19 +6,17 @@ import logging
 from datetime import datetime
 
 
-# Log path for Windows, macOS, Linux
-# log_folder = "D:\\tmp\\"
-# log_folder = "~/log/ddns/"
-log_folder = "/var/log/ddns/"
+# Log path
+log_folder = "log"
 # Create log folder if not exist
 if not os.path.exists(log_folder):
     os.mkdir(log_folder)
 
-log_filename = "ddns_google_{1:%Y%m%d}".format(datetime.now())
+log_filename = "ddns_google_{0:%Y%m%d}.log".format(datetime.now())
 log_path = os.path.join(log_folder, log_filename)
 
 # Set log format
-logging.basicConfig(format="%(asctime)s; %(levelname)s; %(message)s", filename=log_filename, level=logging.INFO)
+logging.basicConfig(format="%(asctime)s; %(levelname)s; %(message)s", filename=log_path, level=logging.INFO)
 
 # Proxy settings
 proxies_set = {
@@ -80,7 +78,7 @@ def get_dns_ip(hostname):
     resolver_tmp.nameservers = ["8.8.8.8", "8.8.4.4"]
 
     # IPv4 query
-    result_ip4_dns = resolver_tmp.query(hostname, 'A').rrset[0].address
+    result_ip4_dns = resolver_tmp.resolve(hostname, 'A').rrset[0].address
 
     # IPv6 query
     # result_ip6_dns = resolver_tmp.query(hostname, 'AAAA').rrset[0].address
@@ -152,7 +150,7 @@ def dns_update_step(update_meta, result_ip_cur):
         result_update = "No need update."
     # Log result
     log_content = log_generator(hostname, ip_cur, ip_dns, result_update)
-    logging.INFO(log_content)
+    logging.info(log_content)
 
     return
 
