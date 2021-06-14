@@ -1,3 +1,9 @@
+# Ignore credentials
+configs
+
+# Ignore log
+log
+
 # npm dependencies
 /node_modules
 # production package
