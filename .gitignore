@@ -1,5 +1,11 @@
-# Ignore credentials
-configs
+# Ignore Configs
+configs/*.ini
+
+# Including example files
+!configs/*.example.ini
+
+# Ignore test files
+test.*
 
 # Ignore log
 log
