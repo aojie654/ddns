@@ -25,6 +25,10 @@ if not Path.exists(path_log_dir):
 # Set log format
 logging.basicConfig(format="%(asctime)s; %(levelname)s; %(message)s", filename=path_log, level=logging.INFO)
 
+# Log script start
+log_content = "{0:=^100}".format(" DDNS script start ")
+logging.info(log_content)
+
 # Config path is path_root/.config
 filename_config = "google.ini"
 path_config_dir = path_root.joinpath("configs")
@@ -227,10 +231,6 @@ def testing():
 
 
 if __name__ == "__main__":
-
-    # Log script start
-    log_content = "{0:=^100}".format(" DDNS script start ")
-    logging.info(log_content)
     # Using your testing function here
     # testing()
 
