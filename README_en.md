@@ -64,22 +64,22 @@ Get current global IP / DNS IP with specified hostname then using Cloudflare API
 
 1. Config DDNS information in configs/cloudflare.ini by referring configs/cloudflare.example.ini:
    1. Config the following settings in stanza: DEFAULT :
-      |               | Required | Description                                                                                             | Example                                |
-      | :------------ | :------- | :------------------------------------------------------------------------------------------------------ | :------------------------------------- |
-      | proxy_http    | N        | http proxy when sending request                                                                         | proxy_http = <http://127.0.0.1:10809>  |
-      | proxy_https   | N        | https proxy when sending request                                                                        | proxy_https = <http://127.0.0.1:10809> |
-      | account_email | Y        | Cloudflare account email                                                                                | account_email = user@example.com       |
-      | account_id    | Y        | Cloudflare account ID                                                                                   |                                        |
-      | zone_id       | Y        | Cloudflare DNS Zone ID. Set in stanza: DEFAULT at currently. Will included in hostname stanza in future |                                        |
-      | api_key       | Y        | API Key created in settings                                                                             |                                        |
-      | api_token     | Y        | Cloudflare API Token                                                                                    |                                        |
+      |               | Required | Description                                                                                             | Example                                             |
+      | :------------ | :------- | :------------------------------------------------------------------------------------------------------ | :-------------------------------------------------- |
+      | proxy_http    | N        | http proxy when sending request                                                                         | proxy_http = <http://127.0.0.1:10809>               |
+      | proxy_https   | N        | https proxy when sending request                                                                        | proxy_https = <http://127.0.0.1:10809>              |
+      | account_email | Y        | Cloudflare account email                                                                                | account_email = user@example.com                    |
+      | account_id    | Y        | Cloudflare account ID                                                                                   | account_id = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx       |
+      | zone_id       | Y        | Cloudflare DNS Zone ID. Set in stanza: DEFAULT at currently. Will included in hostname stanza in future | zone_id = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx          |
+      | api_key       | Y        | API Key created in settings                                                                             | api_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx     |
+      | api_token     | Y        | Cloudflare API Token                                                                                    | api_token = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx |
    2. 其余段:
-      |                          | Required | Description                                                                                     | Example                        |
-      | :----------------------- | :------- | :---------------------------------------------------------------------------------------------- | :----------------------------- |
-      | Stanza Name              | Y        | DDNS Hostname                                                                                   | [ddns.example.com]             |
-      | records                  | Y        | DDNS Record type: A/AAAA, using "," to split if there are multiple types                        | records = A,AAAA               |
-      | ttl_{{type_record}} | N        | Update DDNS ttl to the settings in configuration file, it will be 1(auto) if not set. Record name should related to record type | ttl_A = 120 |
-      | hostname_{{type_record}} | N        | Update DDNS records to IP related with this hostname. Record name should related to record type | hostname_A = cname.example.com |
+      |                          | Required | Description                                                                                                                     | Example                        |
+      | :----------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------ | :----------------------------- |
+      | Stanza Name              | Y        | DDNS Hostname                                                                                                                   | [ddns.example.com]             |
+      | records                  | Y        | DDNS Record type: A/AAAA, using "," to split if there are multiple types                                                        | records = A,AAAA               |
+      | ttl_{{type_record}}      | N        | Update DDNS ttl to the settings in configuration file, it will be 1(auto) if not set. Record name should related to record type | ttl_A = 120                    |
+      | hostname_{{type_record}} | N        | Update DDNS records to IP related with this hostname. Record name should related to record type                                 | hostname_A = cname.example.com |
 2. Excute the script and check if there are some errors or not in log.
 3. Add script task to Crontab. Internal should be 5 min or longger.
 

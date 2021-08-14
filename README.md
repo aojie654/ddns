@@ -64,15 +64,15 @@
 
 1. 参考 configs/cloudflare.example.ini, 在配置文件 configs/cloudflare.ini 中配置代理及各 DDNS 域名的认证信息:
    1. 在 DEFAULT 段中, 配置:
-      |               | 必填 | 描述                                                                        | 样例                                   |
-      | :------------ | :--- | :-------------------------------------------------------------------------- | :------------------------------------- |
-      | proxy_http    | 否   | 发起请求时的http代理                                                        | proxy_http = <http://127.0.0.1:10809>  |
-      | proxy_https   | 否   | 发起请求时的https代理                                                       | proxy_https = <http://127.0.0.1:10809> |
-      | account_email | 是   | Cloudflare 账号邮箱                                                         | account_email = user@example.com       |
-      | account_id    | 是   | Cloudflare 账号ID                                                           |                                        |
-      | zone_id       | 是   | Cloudflare DNS Zone ID, 当前先放在 DEFAULT里面,后续更新以支持多一级域名DDNS |                                        |
-      | api_key       | 是   | 设置里面创建的API Key                                                       |                                        |
-      | api_token     | 是   | Cloudflare API Token                                                        |                                        |
+      |               | 必填 | 描述                                                                        | 样例                                                |
+      | :------------ | :--- | :-------------------------------------------------------------------------- | :-------------------------------------------------- |
+      | proxy_http    | 否   | 发起请求时的http代理                                                        | proxy_http = <http://127.0.0.1:10809>               |
+      | proxy_https   | 否   | 发起请求时的https代理                                                       | proxy_https = <http://127.0.0.1:10809>              |
+      | account_email | 是   | Cloudflare 账号邮箱                                                         | account_email = user@example.com                    |
+      | account_id    | 是   | Cloudflare 账号ID                                                           | account_id = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx       |
+      | zone_id       | 是   | Cloudflare DNS Zone ID, 当前先放在 DEFAULT里面,后续更新以支持多一级域名DDNS | zone_id = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx          |
+      | api_key       | 是   | 设置里面创建的API Key                                                       | api_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx     |
+      | api_token     | 是   | Cloudflare API Token                                                        | api_token = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx |
    2. 其余段:
       |                          | 必填 | 描述                                                                        | 样例                           |
       | :----------------------- | :--- | :-------------------------------------------------------------------------- | :----------------------------- |
