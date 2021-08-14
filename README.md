@@ -74,11 +74,12 @@
       | api_key       | 是   | 设置里面创建的API Key                                                       |                                        |
       | api_token     | 是   | Cloudflare API Token                                                        |                                        |
    2. 其余段:
-      |                          | 必填 | 描述                                              | 样例                           |
-      | :----------------------- | :--- | :------------------------------------------------ | :----------------------------- |
-      | 段名                     | 是   | DDNS 域名                                         | [ddns.example.com]             |
-      | records                  | 是   | DDNS记录类型: A/AAAA, 多个类型以逗号无空格分割    | records = A,AAAA               |
-      | hostname_{{type_record}} | 否   | DDNS IP 更新为当前域名 IP, 名称需要与记录类型对应 | hostname_A = cname.example.com |
+      |                          | 必填 | 描述                                                                        | 样例                           |
+      | :----------------------- | :--- | :-------------------------------------------------------------------------- | :----------------------------- |
+      | 段名                     | 是   | DDNS 域名                                                                   | [ddns.example.com]             |
+      | records                  | 是   | DDNS记录类型: A/AAAA, 多个类型以逗号无空格分割                              | records = A,AAAA               |
+      | ttl_{{type_record}}      | 否   | DDNS TTL 更新为配置文件中的ttl, 缺省时默认为1(自动), 名称需要与记录类型对应 | ttl_A = 120                    |
+      | hostname_{{type_record}} | 否   | DDNS IP 更新为当前域名 IP, 名称需要与记录类型对应                           | hostname_A = cname.example.com |
 2. 运行一下试试, 看日志里有没有报错
 3. 将脚本执行任务添加到Crontab, 建议时间间隔: 5 min
 

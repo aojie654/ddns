@@ -78,6 +78,7 @@ Get current global IP / DNS IP with specified hostname then using Cloudflare API
       | :----------------------- | :------- | :---------------------------------------------------------------------------------------------- | :----------------------------- |
       | Stanza Name              | Y        | DDNS Hostname                                                                                   | [ddns.example.com]             |
       | records                  | Y        | DDNS Record type: A/AAAA, using "," to split if there are multiple types                        | records = A,AAAA               |
+      | ttl_{{type_record}} | N        | Update DDNS ttl to the settings in configuration file, it will be 1(auto) if not set. Record name should related to record type | ttl_A = 120 |
       | hostname_{{type_record}} | N        | Update DDNS records to IP related with this hostname. Record name should related to record type | hostname_A = cname.example.com |
 2. Excute the script and check if there are some errors or not in log.
 3. Add script task to Crontab. Internal should be 5 min or longger.

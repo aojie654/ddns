@@ -25,11 +25,15 @@ if not Path.exists(path_log_dir):
 # Set log format
 logging.basicConfig(format="%(asctime)s; %(levelname)s; %(message)s", filename=path_log, level=logging.INFO)
 
+# Log script start
+log_content = "{0:=^100}".format(" DDNS script start ")
+logging.info(log_content)
+
 # Config path is path_root/.config
 filename_config = "cloudflare.ini"
 path_config_dir = path_root.joinpath("configs")
 path_config = path_config_dir.joinpath(filename_config)
-log_content = "Config path is: {0}".format(path_config)
+log_content = "Config path is: {:}".format(path_config)
 logging.info(log_content)
 
 # Load config
@@ -44,7 +48,7 @@ if "proxy_http" in config_default.keys():
     proxies_set["http"] = config_default["proxy_http"]
 if "proxy_https" in config_default.keys():
     proxies_set["https"] = config_default["proxy_https"]
-log_content = "Proxy is: {0}".format(proxies_set)
+log_content = "Proxy is: {:}".format(proxies_set)
 logging.info(log_content)
 
 # Read [ Account Email, Account ID, Zone ID, API Key, API Token ]
@@ -79,7 +83,7 @@ def get_global_ip():
         result_ip4_cur = requests.get(url_ip4, timeout=5).text.replace("\n", "")
     except Exception as exception_tmp:
         result_ip4_cur = "127.0.0.1"
-        log_content = "Error occured when get global IPv4, using 127.0.0.1 to global IP: {0}".format(exception_tmp)
+        log_content = "Error occured when get global IPv4, using 127.0.0.1 to global IP: {:}".format(exception_tmp)
         logging.error(log_content)
     # result_ip4_cur = get_dns_ip(hostname=hostname, type_record="A")
     # Use 127.0.0.1 as result IPv4 address for debug.
@@ -92,7 +96,7 @@ def get_global_ip():
         result_ip6_cur = requests.get(url_ip6, timeout=5).text.replace("\n", "")
     except Exception as exception_tmp:
         result_ip6_cur = "::1"
-        log_content = "Error occured when get global IPv6, using ::1 to global IP: {0}".format(exception_tmp)
+        log_content = "Error occured when get global IPv6, using ::1 to global IP: {:}".format(exception_tmp)
         logging.error(log_content)
     # result_ip4_cur = get_dns_ip(hostname=hostname, type_record="AAAA")
     # Use ::1 as result IPv6 address for debug.
@@ -106,7 +110,7 @@ def get_global_ip():
 
     # Log current IP
     result_ip_cur_json = json.dumps(result_ip_cur, indent=4, ensure_ascii=False)
-    log_content = "Current IP is: {0}".format(result_ip_cur_json)
+    log_content = "Current IP is: {:}".format(result_ip_cur_json)
     logging.info(log_content)
 
     return result_ip_cur
@@ -132,14 +136,14 @@ def get_dns_ip(hostname, type_record):
         result_ip_dns = resolver_tmp.resolve(hostname, type_record).rrset[0].address
         # Log current IP
         if result_ip_dns != "":
-            log_content = "DNS IP of hostname: {0} : {1} is {2}".format(hostname, type_record, result_ip_dns)
+            log_content = "DNS IP of hostname: {:} : {:} is {:}".format(hostname, type_record, result_ip_dns)
         else:
-            log_content = "No record of hostname: {0} : {1} at DNS.".format(hostname, type_record)
+            log_content = "No record of hostname: {:} : {:} at DNS.".format(hostname, type_record)
         logging.info(log_content)
         # Set success flag to True
         flag_success = True
     except Exception as exception_tmp:
-        logging.error("Error occured when get DNS IP of hostname: {0} : {1}: {2}".format(hostname, type_record, exception_tmp))
+        logging.error("Error occured when get DNS IP of hostname: {:} : {:}: {:}".format(hostname, type_record, exception_tmp))
 
     return flag_success, result_ip_dns
 
@@ -159,43 +163,46 @@ def get_hostname_detail(hostname, type_records):
     flag_success = False
 
     # URL of list records
-    url_record_list = "https://api.cloudflare.com/client/v4/zones/{0}/dns_records?name={1}".format(zone_id, hostname)
+    url_record_list = "https://api.cloudflare.com/client/v4/zones/{:}/dns_records?name={:}".format(zone_id, hostname)
     # Get all records of this hostname
     try:
         result_request = requests.request(method="GET", url=url_record_list, headers=header_record, proxies=proxies_set, timeout=5).json()["result"]
         result_request_json = json.dumps(result_request, indent=4, ensure_ascii=False)
-        log_content = "Request result is: {0}".format(result_request_json)
+        log_content = "Request result is: {:}".format(result_request_json)
         logging.info(log_content)
         # Save all records content and id to dict
         for result_record in result_request:
             record_type_tmp = result_record["type"]
             if record_type_tmp in type_records:
-                key_content = "content_{0}".format(record_type_tmp)
+                key_content = "content_{:}".format(record_type_tmp)
                 result_hostname[key_content] = result_record["content"]
-                key_record_id = "record_id_{0}".format(record_type_tmp)
+                key_record_id = "record_id_{:}".format(record_type_tmp)
                 result_hostname[key_record_id] = result_record["id"]
+                key_ttl = "ttl_{:}".format(record_type_tmp)
+                result_hostname[key_ttl] = result_record["ttl"]
         # Log hostname detail
         result_hostnames_json = json.dumps(result_hostname, indent=4, ensure_ascii=False)
-        log_content = "Hostname detail is: {0}".format(result_hostnames_json)
+        log_content = "Hostname detail is: {:}".format(result_hostnames_json)
         logging.info(log_content)
         # Set success flag to True
         flag_success = True
     except Exception as exception_tmp:
-        log_content = "Error occured when get details of {0}: {1}.".format(hostname, exception_tmp)
+        log_content = "Error occured when get details of {:}: {:}.".format(hostname, exception_tmp)
         logging.error(log_content)
 
     return flag_success, result_hostname
 
 
-def log_generator(hostname, ip_cur, ip_dns, type_record, result_update):
+def log_generator(hostname, ip_cur, ip_dns, type_record, ttl_config, ttl_cur, result_update):
     """
     Generate log.
     Input: Hostname, current ip, DNS ip, update result
     Return: Hostname: {{hostname}}, record type: {{type_record}}, current IP: {{ip_cur}}, DNS IP: {{ip_dns}}, update result: {{result_update}}
     """
-
+    result_update = json.dumps(result_update, indent=4, ensure_ascii=False)
     # Define log tamplate
-    log_content = "Hostname: {0}, record type: {1}, current IP: {2}, DNS IP: {3}, update result: {4}, ".format(hostname, type_record, ip_cur, ip_dns, result_update)
+    log_content = "Hostname: {:}, record type: {:}, current IP: {:}, DNS IP: {:}, configured ttl: {:}, current ttl: {:}, update result: {:} ".format(
+        hostname, type_record, ip_cur, ip_dns, ttl_config, ttl_cur, result_update)
 
     return log_content
 
@@ -204,7 +211,7 @@ def dns_update_step(hostname, result_ip_cur, config_hostname):
     """
     Update DNS record.
     Input: IP information, current ip
-    Return: None
+    Return: result_update
     """
 
     # Get type of records
@@ -218,18 +225,24 @@ def dns_update_step(hostname, result_ip_cur, config_hostname):
 
     # Return failed at get hostname detail
     if flag_success == False:
-        result_update = "Get detail of hostname {0} failed.".format(hostname)
+        result_update = "Get detail of hostname {:} failed.".format(hostname)
 
         return result_update
 
     for type_record in type_records:
-        # Judge the IP was changed or not
-        key_content = "content_{0}".format(type_record)
-        key_id = "record_id_{0}".format(type_record)
+        key_content = "content_{:}".format(type_record)
+        key_id = "record_id_{:}".format(type_record)
+        key_ttl = "ttl_{:}".format(type_record)
+        # Get config ttl if exist or set to "auto"
+        if key_ttl in config_hostname.keys():
+            ttl_config = eval(config_hostname[key_ttl])
+        else:
+            # Initial ttl to "auto"
+            ttl_config = 1
         # Judge hostname type exist or not
-        hostname_type = "hostname_{0}".format(type_record)
+        hostname_type = "hostname_{:}".format(type_record)
         if hostname_type in config_hostname.keys():
-            log_content = "Using DNS mode of {0} : {1}".format(hostname, type_record)
+            log_content = "Using DNS mode of {:} : {:}".format(hostname, type_record)
             logging.info(log_content)
 
             # Get IP of hostname type record from DNS IP
@@ -237,41 +250,47 @@ def dns_update_step(hostname, result_ip_cur, config_hostname):
             flag_success, result_ip_cur_tmp = get_dns_ip(hostname=hostname_tmp, type_record=type_record)
             # Return failed at get DNS IP
             if flag_success == False:
-                result_update = "Get DNS IP of {0} : {1} failed.".format(hostname, type_record)
+                result_update = "Get DNS IP of {:} : {:} failed.".format(hostname, type_record)
 
                 return result_update
         else:
             # Get IP of type record from global IP
-            key_cur = "cur_{0}".format(type_record)
+            key_cur = "cur_{:}".format(type_record)
             result_ip_cur_tmp = result_ip_cur[key_cur]
         if key_content not in hostname_detail.keys():
-            log_content = "There are not such key: {0} of hostname: {1}.".format(key_content, hostname)
+            log_content = "There are not such key: {:} of hostname: {:}.".format(key_content, hostname)
             return log_content
-        if result_ip_cur_tmp != hostname_detail[key_content]:
+        # Judge the IP and ttl were changed or not
+        if (result_ip_cur_tmp != hostname_detail[key_content]) or (ttl_config != hostname_detail[key_ttl]):
             # If changed, update DNS record
-            logging.info("Updating DNS records of {0} : {1}...".format(hostname, type_record))
+            logging.info("Updating DNS records of {:} : {:}...".format(hostname, type_record))
             data_record_update = {
                 "name": hostname,
                 "type": type_record,
                 "content": result_ip_cur_tmp,
-                "ttl": 1,
+                "ttl": ttl_config,
                 "proxied": False
             }
             # Update DNS record with HTTP POST
-            url_record_update = "https://api.cloudflare.com/client/v4/zones/{0}/dns_records/{1}".format(zone_id, hostname_detail[key_id])
+            url_record_update = "https://api.cloudflare.com/client/v4/zones/{:}/dns_records/{:}".format(zone_id, hostname_detail[key_id])
             try:
-                result_update = requests.request(method="PUT", url=url_record_update, headers=header_record, json=data_record_update, proxies=proxies_set, timeout=5).text
+                result_update = requests.request(method="PUT", url=url_record_update, headers=header_record, json=data_record_update, proxies=proxies_set, timeout=5).json()
             except Exception as exception_tmp:
-                result_update = "Error occured when update: {0}".format(exception_tmp)
+                result_update = {
+                    "result": "Error occured when update: {:}".format(exception_tmp)
+                }
         else:
             # Log no need update
-            result_update = "No need update."
+            result_update = {
+                "result": "No need update."
+            }
         # Log result
-        log_content = log_generator(hostname=hostname, type_record=type_record, ip_cur=result_ip_cur_tmp, ip_dns=hostname_detail[key_content], result_update=result_update)
+        log_content = log_generator(hostname=hostname, type_record=type_record, ip_cur=result_ip_cur_tmp,
+                                    ip_dns=hostname_detail[key_content], ttl_config=ttl_config, ttl_cur=hostname_detail[key_ttl], result_update=result_update)
         logging.info(log_content)
 
     # Return success of
-    result_update = "Update of hostname: {0} success.".format(hostname)
+    result_update = "Update of hostname: {:} success.".format(hostname)
 
     return result_update
 
@@ -285,9 +304,6 @@ def testing():
 
 if __name__ == "__main__":
 
-    # Log script start
-    log_content = "{0:=^100}".format(" DDNS script start ")
-    logging.info(log_content)
     # Using your testing function here
     # testing()
 
