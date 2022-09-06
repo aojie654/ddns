@@ -1,10 +1,9 @@
 # encoding = utf-8
 
 import configparser
-import datetime
 import json
 import logging
-from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 import dns.resolver
@@ -15,7 +14,7 @@ path_root = Path(__file__).parents[1]
 
 # Log Path in path_root/log/
 path_log_dir = path_root.joinpath("log")
-filename_log = "ddns_google_{0:%Y%m%d}.log".format(datetime.now())
+filename_log = "ddns_google.log"
 path_log = path_log_dir.joinpath(filename_log)
 
 # Create log folder if not exist
@@ -23,23 +22,42 @@ if not Path.exists(path_log_dir):
     Path.mkdir(path_log_dir)
 
 # Set log format
-logging.basicConfig(format="%(asctime)s; %(levelname)s; %(message)s", filename=path_log, level=logging.INFO)
+logger = logging.getLogger(__file__)
+logger.setLevel(logging.INFO)
+logger_formatter = logging.Formatter(fmt="%(asctime)s; %(levelname)s; %(message)s")
+logger_handler =  TimedRotatingFileHandler(path_log, when="d", interval=1, backupCount=5)
+logger_handler.setFormatter(fmt=logger_formatter)
+logger.addHandler(logger_handler)
 
 # Log script start
 log_content = "{0:=^100}".format(" DDNS script start ")
-logging.info(log_content)
+logger.info(log_content)
 
 # Config path is path_root/.config
 filename_config = "google.ini"
 path_config_dir = path_root.joinpath("configs")
 path_config = path_config_dir.joinpath(filename_config)
 log_content = "Config path is: {0}".format(path_config)
-logging.info(log_content)
+logger.info(log_content)
 
 # Load config
 config = configparser.ConfigParser()
 config.read(path_config)
 config_default = config["DEFAULT"]
+
+# Load URL of IPv4, IPv6
+# URL to get IPv4 address
+url_key = "url_ip4"
+if url_key in config_default.keys():
+    url_ip4 = config_default[url_key]
+else:
+    url_ip4 = "https://v4.ipv6-test.com/api/myip.php"
+# URL to get IPv6 address
+url_key = "url_ip6"
+if url_key in config_default.keys():
+    url_ip6 = config_default[url_key]
+else:
+    url_ip6 = "https://v6.ipv6-test.com/api/myip.php"
 
 # Initial proxy result
 proxies_set = dict()
@@ -49,7 +67,7 @@ if "proxy_http" in config_default.keys():
 if "proxy_https" in config_default.keys():
     proxies_set["https"] = config_default["proxy_https"]
 log_content = "Proxy is: {0}".format(proxies_set)
-logging.info(log_content)
+logger.info(log_content)
 
 
 def get_global_ip():
@@ -69,8 +87,8 @@ def get_global_ip():
         result_ip4_cur = requests.get(url_ip4, timeout=5).text.replace("\n", "")
     except Exception as exception_tmp:
         result_ip4_cur = "127.0.0.1"
-        logging.error("Error occured when get global IPv4, using 127.0.0.1 to global IP: {0}".format(exception_tmp))
-        # logging.error("Error occured when get global IPv4, using 127.0.0.1 to global IP.", exc_info=exception_tmp)
+        logger.exception("Error occured when get global IPv4, using 127.0.0.1 to global IP: {0}".format(exception_tmp))
+        # logger.exception("Error occured when get global IPv4, using 127.0.0.1 to global IP.", exc_info=exception_tmp)
     # result_ip4_cur = get_dns_ip(hostname=hostname, type_record="A")
     # Use 127.0.0.1 as result IPv4 address for debug.
     # result_ip4_cur = "127.0.0.1"
@@ -82,7 +100,7 @@ def get_global_ip():
         result_ip6_cur = requests.get(url_ip6, timeout=5).text.replace("\n", "")
     except Exception as exception_tmp:
         result_ip6_cur = "::1"
-        logging.error("Error occured when get global IPv6, using ::1 to global IP: {0}".format(exception_tmp))
+        logger.exception("Error occured when get global IPv6, using ::1 to global IP: {0}".format(exception_tmp))
     # result_ip4_cur = get_dns_ip(hostname=hostname, type_record="AAAA")
     # Use ::1 as result IPv6 address for debug.
     # result_ip6_cur = "::1"
@@ -96,7 +114,7 @@ def get_global_ip():
     # Log current IP
     result_ip_cur_json = json.dumps(result_ip_cur, indent=4, ensure_ascii=False)
     log_content = "Current IP is: {0}".format(result_ip_cur_json)
-    logging.info(log_content)
+    logger.info(log_content)
 
     return result_ip_cur
 
@@ -124,11 +142,11 @@ def get_dns_ip(hostname, type_record):
             log_content = "DNS IP of hostname: {0} : {1} is {2}".format(hostname, type_record, result_ip_dns)
         else:
             log_content = "No record of hostname: {0} : {1} at DNS.".format(hostname, type_record)
-        logging.info(log_content)
+        logger.info(log_content)
         # Set success flag to True
         flag_success = True
     except Exception as exception_tmp:
-        logging.error("Error occured when get DNS IP of hostname: {0} : {1}".format(hostname, type_record), exc_info=exception_tmp)
+        logger.exception("Error occured when get DNS IP of hostname: {0} : {1}".format(hostname, type_record), exc_info=exception_tmp)
 
     return flag_success, result_ip_dns
 
@@ -165,7 +183,7 @@ def dns_update_step(hostname, result_ip_cur, config_hostname):
         hostname_type = "hostname_{0}".format(type_record)
         if hostname_type in config_hostname.keys():
             log_content = "Using DNS mode of {0} : {1}".format(hostname, type_record)
-            logging.info(log_content)
+            logger.info(log_content)
             # Get IP of hostname type record from DNS IP
             hostname_tmp = config_hostname[hostname_type]
             flag_success, result_ip_cur_tmp = get_dns_ip(hostname=hostname_tmp, type_record=type_record)
@@ -187,10 +205,10 @@ def dns_update_step(hostname, result_ip_cur, config_hostname):
             return result_update
         else:
             log_content = "{0} : {1} at DNS is: {2}".format(hostname, type_record, result_ip_dns)
-            logging.info(log_content)
+            logger.info(log_content)
         if result_ip_cur_tmp != result_ip_dns:
             # If changed, update DNS record
-            logging.info("Updating DNS records of {0} : {1}...".format(hostname, type_record))
+            logger.info("Updating DNS records of {0} : {1}...".format(hostname, type_record))
 
             # Get usrename and password
             key_username = "username_{0}".format(type_record)
@@ -215,7 +233,7 @@ def dns_update_step(hostname, result_ip_cur, config_hostname):
             result_update = "No need update."
         # Log result
         log_content = log_generator(hostname=hostname, type_record=type_record, ip_cur=result_ip_cur_tmp, ip_dns=result_ip_dns, result_update=result_update)
-        logging.info(log_content)
+        logger.info(log_content)
 
     # Return success of
     result_update = "Update of hostname: {0} success.".format(hostname)
@@ -243,8 +261,8 @@ if __name__ == "__main__":
         config_hostname = config[hostname]
         # Update DNS record if config is related to hostname
         result_update = dns_update_step(hostname, result_ip_cur, config_hostname)
-        logging.info(result_update)
+        logger.info(result_update)
 
     # Log script end
     log_content = "{0:=^100}\n".format(" DDNS script End ")
-    logging.info(log_content)
+    logger.info(log_content)
